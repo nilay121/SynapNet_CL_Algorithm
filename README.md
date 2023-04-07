@@ -36,8 +36,10 @@ Implementation of the Biological Inspired Network (BioINet) for continual learni
 python3 main.py
 ```
 
-## To run the benchmark algorithms (e.g cd MNIST_Exp/Benchmark_modelExp)
-  
+## To run the benchmark algorithms (EWC, LWF, SI, Naive, joint)
+
+- Move to the desired folder (e.g cd MNIST_Exp/Benchmark_modelExp)
+
   ```bash
   python3 benchmarkSeparateWithGeneratorForBuffer.py
   ```
