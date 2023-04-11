@@ -1,6 +1,8 @@
 # BioINet
 Implementation of the Biological Inspired Network (BioINet) for continual learning applications. More details about the algorithm and the architecture is provided in the paper "".
 
+We have used the [Avalanche](https://avalanche.continualai.org/) framework for the generation of continual learning experineces to train the BioINet as well as the benchmark algorithms.
+
 ## Dataset Link
 
 - [MNIST](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
