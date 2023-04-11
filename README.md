@@ -3,12 +3,12 @@ Implementation of the Biological Inspired Network (BioINet) for continual learni
 
 ## Dataset Link
 
-- [MNIST]()
-- [FMNIST]()
-- [CIFAR10]()
-- [CIFAR100]()
-- [PMNIST]()
-- [RMNIST]()
+- [MNIST](https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html)
+- [FMNIST](https://pytorch.org/vision/main/generated/torchvision.datasets.FashionMNIST.html)
+- [CIFAR10](https://pytorch.org/vision/main/generated/torchvision.datasets.CIFAR10.html#torchvision.datasets.CIFAR10)
+- [CIFAR100](https://pytorch.org/vision/main/generated/torchvision.datasets.CIFAR100.html#torchvision.datasets.CIFAR100)
+- [PMNIST](https://avalanche-api.continualai.org/en/v0.1.0/generated/avalanche.benchmarks.classic.PermutedMNIST.html)
+- [RMNIST](https://avalanche-api.continualai.org/en/v0.3.1/generated/avalanche.benchmarks.classic.RotatedMNIST.html)
 
 ## Install the dependencies in a virtual environment
 
