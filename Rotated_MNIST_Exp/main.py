@@ -2,12 +2,12 @@
 BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
 a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
 '''
-from plasticModel import PlasticModel
-from workingModel import WorkingModel 
-from stableModel import StableModel
+from .plasticModel import PlasticModel
+from .workingModel import WorkingModel 
+from .stableModel import StableModel
 import numpy as np
 import matplotlib.pyplot as plt
-from cls_inhibition_algo import CustomInhibitStrategy
+from .cls_inhibition_algo import CustomInhibitStrategy
 import torch
 import torchvision
 from avalanche.benchmarks.datasets import MNIST, FashionMNIST, KMNIST, EMNIST, \
@@ -26,9 +26,9 @@ from torchvision import transforms
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import confusion_matrix
 
-from vae_model import VAE
-from vae_training import Vae_Cls_Generator
-from utils import utility_funcs
+from .vae_model import VAE
+from .vae_training import Vae_Cls_Generator
+from .utils import utility_funcs
 
 
 def singleRun(n_experiences):

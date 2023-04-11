@@ -3,13 +3,13 @@ BioINet (Biological Inspired Network) is Biological Inspired Complementary Learn
 a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
 '''
 
-from plasticModel import PlasticModel
-from workingModel import WorkingModel 
-from stableModel import StableModel
+from .plasticModel import PlasticModel
+from .workingModel import WorkingModel 
+from .stableModel import StableModel
 from avalanche.benchmarks.classic import SplitMNIST,SplitFMNIST
 import numpy as np
 import matplotlib.pyplot as plt
-from cls_inhibition_algo import CustomInhibitStrategy
+from .cls_inhibition_algo import CustomInhibitStrategy
 import torch
 import torchvision
 from avalanche.benchmarks.datasets import MNIST, FashionMNIST, KMNIST, EMNIST, \
@@ -25,9 +25,9 @@ from sklearn.model_selection import train_test_split
 from avalanche.benchmarks.utils import AvalancheDataset
 from torchvision import transforms
 
-from vae_model import VAE
-from vae_training import Vae_Cls_Generator
-from utils import utility_funcs
+from .vae_model import VAE
+from .vae_training import Vae_Cls_Generator
+from .utils import utility_funcs
 
 
 def singleRun(n_experiences):

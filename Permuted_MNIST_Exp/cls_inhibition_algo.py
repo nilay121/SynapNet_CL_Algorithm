@@ -18,10 +18,10 @@ from sklearn.preprocessing import MinMaxScaler
 from collections import OrderedDict
 from torchmetrics import Accuracy
 from tqdm import tqdm
-from plasticModel import PlasticModel
-from workingModel import WorkingModel 
-from stableModel import StableModel
-from utils import utility_funcs
+from .plasticModel import PlasticModel
+from .workingModel import WorkingModel 
+from .stableModel import StableModel
+from .utils import utility_funcs
 
 class CustomInhibitStrategy():
   def __init__(self,working_model,modelstable,modelplastic,criterion_ce=torch.nn.CrossEntropyLoss(),

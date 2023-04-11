@@ -15,7 +15,7 @@ from torch.nn import functional as F
 from torch.optim import Adam,SGD
 from torchmetrics import Accuracy
 from tqdm import tqdm
-from utils import utility_funcs
+from .utils import utility_funcs
 import torchshow as ts
 
 class CustomInhibitStrategy():
@@ -97,7 +97,7 @@ class CustomInhibitStrategy():
             ts.save(sup_mask_sized_as_x, f"masks/SupressionMask{experience.current_experience}.png")
             self.working_model.model.conv1.weight.grad = gradient_conv1.where(sup_mask_sized_as_x != 0, torch.zeros_like(gradient_conv1))
             print("#"*5,"Conv1 gradient updated with mask", "#"*5)
-            #ts.save(self.working_model.model.conv1.weight.grad, f"masks/Aftermask{experience.current_experience}.png")
+            ts.save(self.working_model.model.conv1.weight.grad, f"masks/Aftermask{experience.current_experience}.png")
 
       for data in loader_loop:
         input_dataBT = data[0].to(self.device) 
