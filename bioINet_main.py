@@ -1,10 +1,10 @@
 from argparse import ArgumentParser
-import MNIST_Exp.main as mnist_run
-import FMNIST_Exp.main as fmnist_run
-import CIFAR10_Exp.main as cifar10_run
-import CIFAR100_Exp.main as cifar100_run
-import Permuted_MNIST_Exp.main as pmnist_run
-import Rotated_MNIST_Exp.main as rmnist_run
+import MNIST_Exp.mainDemoRun as mnist_run
+import FMNIST_Exp.mainDemoRun as fmnist_run
+import CIFAR10_Exp.mainDemoRun as cifar10_run
+import CIFAR100_Exp.mainDemoRun as cifar100_run
+import Permuted_MNIST_Exp.mainDemoRun as pmnist_run
+import Rotated_MNIST_Exp.mainDemoRun as rmnist_run
 
 def main():
     arg_choices = ['mnist','fmnist','cifar10','cifar100','permuted_mnist','rotated_mnist']

@@ -15,7 +15,7 @@ from torch.nn import functional as F
 from torch.optim import Adam,SGD
 from torchmetrics import Accuracy
 from tqdm import tqdm
-from .utils import utility_funcs
+from utils import utility_funcs
 import torchshow as ts
 
 class CustomInhibitStrategy():

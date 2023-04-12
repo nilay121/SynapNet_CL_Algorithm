@@ -18,7 +18,12 @@ from sklearn.preprocessing import MinMaxScaler
 from collections import OrderedDict
 from torchmetrics import Accuracy
 from tqdm import tqdm
-from utils import utility_funcs
+from .plasticModel import PlasticModel
+from .workingModel import WorkingModel 
+from .stableModel import StableModel
+import logging
+from .utils import utility_funcs
+
 
 class CustomInhibitStrategy():
   def __init__(self,working_model,modelstable,modelplastic,criterion_ce=torch.nn.CrossEntropyLoss(),
@@ -26,17 +31,16 @@ class CustomInhibitStrategy():
                stable_model_alpha = 0.999,plastic_model_alpha=0.999,
                num_epochs=10,reg_weight=0.9,batch_size=32,
                learning_rate=1e-3,n_classes=10,n_channel=1,patience=3,mini_batchGR=32,train_transformBuffer=None,
-               train_transformInput=None,val_transformInput=None,clipping=False):
+               train_transformInput=None,val_transformInput=None):
     
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     self.n_classes=n_classes
     self.n_channel = n_channel
     self.patience = patience
-    self.clipping = clipping
 
-    self.working_model = working_model(self.n_classes,self.n_channel).to(self.device)
-    self.modelstable = modelstable(self.n_classes,self.n_channel).to(self.device) 
-    self.modelplastic = modelplastic(self.n_classes,self.n_channel).to(self.device)
+    self.working_model = working_model(self.n_classes, self.n_channel).to(self.device)
+    self.modelstable = modelstable(self.n_classes, self.n_channel).to(self.device) 
+    self.modelplastic = modelplastic(self.n_classes, self.n_channel).to(self.device)
     self.learning_rate=learning_rate
 
     self.num_epochs = num_epochs
@@ -46,9 +50,9 @@ class CustomInhibitStrategy():
     self.plastic_model_update_freq = plastic_model_update_freq  # plastic model update frequency
     self.stable_model_alpha = stable_model_alpha
     self.plastic_model_alpha=plastic_model_alpha
-    self.criterion_ce = criterion_ce  #task loss
+    self.criterion_ce = criterion_ce 
 
-    self.consistency_loss = nn.MSELoss(reduction='none') #model comparison loss
+    self.consistency_loss = nn.MSELoss(reduction='none')
     self.criterion_mse = nn.MSELoss()
     self.current_task = 0
     self.global_step = 0
@@ -58,8 +62,7 @@ class CustomInhibitStrategy():
     self.train_transformBuffer = train_transformBuffer
     self.train_transformInput = train_transformInput
     self.val_transformInput = val_transformInput
-
-## Training Phase
+  ## Training Phase
   def train(self,experience,synthetic_imgHeight=28,synthetic_imgWidth=28,buf_inputs=[],buf_labels=[]):
     train_dataset = experience.dataset
     train_data_loader = DataLoader(train_dataset, num_workers=4, batch_size=self.batch_size,shuffle=True)
@@ -72,19 +75,20 @@ class CustomInhibitStrategy():
       for data in loader_loop:
         input_dataBT = data[0].to(self.device) #Input data before transformations
 
-        # transformation on the inpu data
+        # transformation on the input data
         input_data = utility_funcs.inputDataTransformation(input_data=input_dataBT,transform=self.train_transformInput).to(self.device)         
         input_label = data[1].to(self.device)
         
         optimizer.zero_grad()
         loss = 0 
 
-        # Resize the buffer images and labels
+        # transformation on the buffer data
         buffer_inputs, buffer_labels = utility_funcs.get_dataBuffer(buffer_data=buf_inputs,buffer_labels=buf_labels,size=self.mini_batchGR,
         synthetic_imgHeight=synthetic_imgHeight,synthetic_imgWidth=synthetic_imgWidth,device=self.device,transform=self.train_transformBuffer)
         buffer_inputs = buffer_inputs.to(self.device)
         buffer_labels = buffer_labels.to(self.device)
 
+        #Logits from the semantic memory
         stable_model_logits = self.modelstable(buffer_inputs) # check
         plastic_model_logits = self.modelplastic(buffer_inputs) # check
         stable_model_prob = F.softmax(stable_model_logits, 1)
@@ -107,11 +111,6 @@ class CustomInhibitStrategy():
         ce_loss = self.criterion_ce(outputs, input_label)
         loss += ce_loss
         loss.backward()
-
-        # Clipping the gradients to avoid exploiding gradient problem
-        if self.clipping:
-          torch.nn.utils.clip_grad_norm_(self.working_model.parameters(), max_norm =5)
-
         optimizer.step()
 
         # Update the ema model
@@ -154,6 +153,7 @@ class CustomInhibitStrategy():
         buffer_inputs = buffer_inputs.to(self.device)
         buffer_labels = buffer_labels.to(self.device)
 
+        # sleep only for stable model
         stable_model_logits = self.modelstable(buffer_inputs) 
         stable_model_prob = F.softmax(stable_model_logits, 1)
         loss_offline = self.criterion_ce(stable_model_prob,buffer_labels)
@@ -164,7 +164,7 @@ class CustomInhibitStrategy():
       scheduler.step(loss_offline)
       print(f"Loss after {i} epoch for stbale model during sleep phase {loss_offline}")
 
-# Evaluation Phase
+  ## Evaluation phase
   def evaluate(self,test_stream,validationFlag=False):
     accuracy = Accuracy(task="multiclass", num_classes=10).to(self.device)
     exp_counter=0

@@ -19,7 +19,7 @@ from sklearn.preprocessing import MinMaxScaler
 from collections import OrderedDict
 from torchmetrics import Accuracy
 from tqdm import tqdm
-from .utils import utility_funcs
+from utils import utility_funcs
 import torchshow as ts
 
 class CustomInhibitStrategy():

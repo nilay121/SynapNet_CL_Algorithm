@@ -3,13 +3,13 @@ BioINet (Biological Inspired Network) is Biological Inspired Complementary Learn
 a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
 '''
 
-from plasticModel import PlasticModel
-from workingModel import WorkingModel 
-from stableModel import StableModel
+from .plasticModel import PlasticModel
+from .workingModel import WorkingModel 
+from .stableModel import StableModel
 from avalanche.benchmarks.classic import SplitMNIST,SplitFMNIST
 import numpy as np
 import matplotlib.pyplot as plt
-from cls_inhibition_algo import CustomInhibitStrategy
+from .cls_inhibition_algoDemoRun import CustomInhibitStrategy
 import torch
 import torchvision
 from avalanche.benchmarks.datasets import MNIST, FashionMNIST, KMNIST, EMNIST, \
@@ -25,72 +25,69 @@ from sklearn.model_selection import train_test_split
 from avalanche.benchmarks.utils import AvalancheDataset
 from torchvision import transforms
 
-from vae_model import VAE
-from vae_training import Vae_Cls_Generator
-from utils import utility_funcs
+from .vae_model import VAE
+from .vae_training import Vae_Cls_Generator
+from .utils import utility_funcs
 
 
 def singleRun(n_experiences):
 
     ## Lateral Inhibition Parameters
     toDo_supression = True
-    gradMaskEpoch = 40
-    length_LIC = 7
-    avg_term = 0.2
-    diff_term = 0.8
+    gradMaskEpoch = 20 # with modulo
+    length_LIC = 7#3
+    avg_term = 0.2#0.1
+    diff_term = 0.8#0.9
     
     ## CLS Model Parameters
-    num_epochs=100
-    n_classes = 100
+    num_epochs=45
+    n_classes=10
     device = "cuda"
     n_experiences = n_experiences
     batch_sizeCLS = 128
     mini_batchGR = 64
 
-    stable_model_update_freq = 0.95
-    plastic_model_update_freq = 1.0
+    stable_model_update_freq = 0.30
+    plastic_model_update_freq = 0.90
     reg_weight = 0.15
     
-    patience = 30
-    learning_rate = 1e-1
+    patience = 10
+    learning_rate = 1e-2 
 
     ## Generator Parameters
     learning_rateGR = 1e-4
     batch_sizeGR = 32 
-    num_epochsGR = 100
-    device = "cuda"
-    patienceGR = 50
+    num_epochsGR = 50
+    patienceGR = 35
 
     synthetic_imgHeight = 32
     synthetic_imgWidth = 32
     img_channel_dim = 3
     latent_embedding = 100
-    num_syntheticExamplesPerDigit = 100
-    num_originalExamplesPerDigit = 100
+    num_syntheticExamplesPerDigit = 500
+    num_originalExamplesPerDigit = 500
 
     #Buffer transformations
     train_transformBuffer = Compose([transforms.ToPILImage(), transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),transforms.ToTensor(), transforms.Normalize(
-            (0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)
-        )])
+    transforms.RandomHorizontalFlip(),transforms.ToTensor(), transforms.Normalize((0.4914, 0.4822, 0.4465),
+    (0.2470, 0.2435, 0.2615))])
 
     #Train data transformations
     train_transformInput = Compose([transforms.ToPILImage(), transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),transforms.ToTensor(), transforms.Normalize(
-            (0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)
-        )])
+    transforms.RandomHorizontalFlip(),transforms.ToTensor(), transforms.Normalize((0.4914, 0.4822, 0.4465),
+    (0.2470, 0.2435, 0.2615))])
 
-    test_transformInput = Compose([ToTensor(),transforms.Normalize(
-            (0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)
-        )])
+    test_transformInput = Compose([ToTensor(),transforms.Normalize((0.4914, 0.4822, 0.4465),
+        (0.2470, 0.2435, 0.2615))])
     
     #Tranformations for the GR model
     train_transformGR = Compose([ToTensor()])
 
-    cifar_train = torchvision.datasets.CIFAR100('./data/',train=True,download=True,transform=train_transformGR)
-    cifar_test = torchvision.datasets.CIFAR100('./data/',train=False,download=True,transform=test_transformInput)
+    cifar_train = torchvision.datasets.CIFAR10('./data/',train=True,download=True,transform=train_transformGR)
+    cifar_test = torchvision.datasets.CIFAR10('./data/',train=False,download=True,transform=test_transformInput)
 
-    scenario_trainTest = nc_benchmark(cifar_train, cifar_test, n_experiences=n_experiences, shuffle=True, seed=9,task_labels=False) # Add fixed_class_order=[0,1,2,3,4,5,6,7,8,9] for fixed clsss runing
+    scenario_trainTest = nc_benchmark(cifar_train, cifar_test, n_experiences=n_experiences, shuffle=False, seed=None,fixed_class_order=[0,1,2,3,4,5,6,7,8,9], 
+                                      task_labels=False) # Add fixed_class_order=[0,1,2,3,4,5,6,7,8,9] for fixed clsss runing
 
     train_stream = scenario_trainTest.train_stream
     test_stream =  scenario_trainTest.test_stream
