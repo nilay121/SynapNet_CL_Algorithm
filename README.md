@@ -50,7 +50,7 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
 - Move to the desired folder (e.g cd MNIST_Exp)
 
 ```bash
-python3 main.py --dataset mnist
+python3 main.py
 ```
 
 ## To run the benchmark algorithms (EWC, LWF, SI, Naive, joint) from dataset folder
