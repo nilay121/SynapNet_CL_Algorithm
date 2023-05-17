@@ -1,7 +1,7 @@
 # BioINet
-Implementation of the Biological Inspired Network (BioINet) for continual learning applications. More details about the algorithm and the architecture is provided in the paper "".
+Implementation of the SynapNet algorithm for continual learning applications. More details about the algorithm and the architecture is provided in the paper "".
 
-We have used the [Avalanche](https://avalanche.continualai.org/) framework for the generation of continual learning experineces to train the BioINet as well as the benchmark algorithms.
+We have used the [Avalanche](https://avalanche.continualai.org/) framework for the generation of continual learning experineces to train the SynapNet as well as the benchmark algorithms.
 
 ## Dataset Link
 
@@ -30,7 +30,7 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
   pip3 install -r requirements.txt
   ```
 
-## To run the BioINet algorithm
+## To run the SynapNet algorithm
 
   ```bash
   python3 bioINet.py --dataset <dataset name>
@@ -45,7 +45,7 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
     python3 main.py --dataset rotated_mnist
     ```
  
-## To run the BioINet algorithm from dataset folder
+## To run the SynapNet algorithm from dataset folder
 
 - Move to the desired folder (e.g cd MNIST_Exp)
 
