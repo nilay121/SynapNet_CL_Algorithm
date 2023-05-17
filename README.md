@@ -17,12 +17,12 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
 - Create a virtual environment (Python version 3.8.10) 
   
   ```bash
-  python3 -m venv BioINet
+  python3 -m venv SynapNet
   ```
 
 - Activate the virtual environment
   ```bash
-  . BioINet/bin/activate
+  . SynapNet/bin/activate
   
 - Install the dependencies
 
@@ -33,7 +33,7 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
 ## To run the SynapNet algorithm
 
   ```bash
-  python3 bioINet.py --dataset <dataset name>
+  python3 SynapNet.py --dataset <dataset name>
   ```
   - Examples
     ```bash
