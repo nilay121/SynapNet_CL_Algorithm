@@ -1,4 +1,4 @@
-# BioINet
+# SynapNet
 Implementation of the SynapNet algorithm for continual learning applications. More details about the algorithm and the architecture is provided in the paper "".
 
 We have used the [Avalanche](https://avalanche.continualai.org/) framework for the generation of continual learning experineces to train the SynapNet as well as the benchmark algorithms.
