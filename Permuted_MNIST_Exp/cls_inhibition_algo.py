@@ -1,10 +1,8 @@
 '''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
-
-Note: "LateralInhibition" class has been taken from the Paper "Lateral Inhibition-Inspired Convolutional Neural Network 
-for Visual Attention and Saliency Detection (2018)" with minor changes. The credit for this class goes to the respective authors.
-
+SynapNet is Brain-Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
+a slow learner (Neocortex), along with a variational autoencoder (VAE) based pseudo memory for rehearsal. 
+In addition, we incorporate  lateral inhibition masks on convolutional layer gradients to suppress neighboring 
+neuron activity and a sleep phase for reorganizing learned representations.
 '''
 from torch.utils.data import DataLoader
 import torch

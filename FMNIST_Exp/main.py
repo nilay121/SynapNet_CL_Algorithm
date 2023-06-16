@@ -1,8 +1,9 @@
 '''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
+SynapNet is Brain-Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
+a slow learner (Neocortex), along with a variational autoencoder (VAE) based pseudo memory for rehearsal. 
+In addition, we incorporate  lateral inhibition masks on convolutional layer gradients to suppress neighboring 
+neuron activity and a sleep phase for reorganizing learned representations.
 '''
-
 from plasticModel import PlasticModel
 from workingModel import WorkingModel 
 from stableModel import StableModel
@@ -24,9 +25,6 @@ from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
 from torchvision import transforms
 
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.metrics import confusion_matrix
-
 from vae_model import VAE
 from vae_training import Vae_Cls_Generator
 from utils import utility_funcs
@@ -37,9 +35,9 @@ def singleRun(n_experiences):
     ## Lateral Inhibition Parameters
     toDo_supression = True
     gradMaskEpoch = 6 
-    length_LIC = 7 #3
-    avg_term = 0.2#0.1
-    diff_term = 0.8#0.9
+    length_LIC = 7 
+    avg_term = 0.2
+    diff_term = 0.8
     
     ## CLS Model Parameters
     num_epochs = 15
@@ -54,7 +52,7 @@ def singleRun(n_experiences):
     reg_weight = 0.75 
     
     patience = 20 
-    learning_rate = 1e-4 #1e-1 ## 1e-2 loss becomes nan after 1st exp
+    learning_rate = 1e-4 
 
     ## Generator Parameters
     learning_rateGR = 0.0001 #0.001
@@ -67,7 +65,7 @@ def singleRun(n_experiences):
     img_channel_dim = 1
     latent_embedding = 100
 
-    num_syntheticExamplesPerDigit = 500
+    num_syntheticExamplesPerDigit = 250#50#100#500
     num_originalExamplesPerDigit = 10
 
     #Buffer data transformations
@@ -150,136 +148,20 @@ def singleRun(n_experiences):
 
         ## Confusion Matrix for each experience
         print(" Plotting the confusion matrix for each experience ")
-        ConfusionMatrixPerExp(predictionsForCF_stable= predictionsForCF_stable,predictionsForCF_plastic = predictionsForCF_plastic 
+        utility_funcs.ConfusionMatrixPerExp(predictionsForCF_stable= predictionsForCF_stable,predictionsForCF_plastic = predictionsForCF_plastic 
         , ground_truth = test_stream, exp_numb=exp_numb, n_experiences=n_experiences)
 
     ##Saving the result for plots
-    y_stable,y_plastic,cls_output = dataPrepToPlot(acc_dict,exp_numb)
+    y_stable,y_plastic,cls_output = utility_funcs.dataPrepToPlot(acc_dict,exp_numb)
 
     ##Save a trained model to a file.
     # torch.save(cl_strategy, "models/VaeModelBufferFinalWithSleep.pickle")
 
-    ## Saving few images of each class from the buffer
-    utility_funcs.toPlotGRImages(buffer_images,image_height=synthetic_imgHeight,image_width=synthetic_imgWidth,img_channel=img_channel_dim
-    ,step_size=num_syntheticExamplesPerDigit)
+    # ## Saving few images of each class from the buffer
+    # utility_funcs.toPlotGRImages(buffer_images,image_height=synthetic_imgHeight,image_width=synthetic_imgWidth,img_channel=img_channel_dim
+    # ,step_size=num_syntheticExamplesPerDigit)
 
     return y_stable,y_plastic,cls_output
-
-    
-def dataPrepToPlot(acc_dict,exp_numb):
-    y_stable=[]
-    y_plastic=[]
-    cls_output = []
-
-    for i in range(0,len(acc_dict)):
-        y_stable.append(np.array(list(acc_dict.values())[i][0].cpu()))
-        y_plastic.append(np.array(list(acc_dict.values())[i][1].cpu()))
-    '''
-    The accuracy of the plastic model for the recent experiences are better than the stable model,
-    whereas the accuracy of the stable model on the old experiences are better.
-    We use the stable model for the older experiences and the plastic model for the latest or recent experiences
-    '''
-    for outputs in range(len(y_stable)):
-        if (outputs==(exp_numb-1)):
-            cls_output.append(y_plastic[outputs])
-        else:
-            cls_output.append(y_stable[outputs])
-
-    y_stable = np.array(y_stable)
-    y_plastic = np.array(y_plastic)
-    cls_output = np.array(cls_output)
-    return np.round(y_stable,decimals=6),np.round(y_plastic,decimals=6),np.round(cls_output,decimals=6)
-
-def barPlotMeanPred(y_plotPlastic,y_plotStable,y_clsOutput,stdStablePred,stdPlasticPred,stdClsOutput,n_experinces):
-    N = n_experinces + 1
-    ind = np.arange(N)
-    width = 0.25
-    fig, ax = plt.subplots()
-
-    cls_avgOutputMean = np.round(np.sum(y_clsOutput)/n_experinces,decimals=2)
-    cls_avgOutputstd = np.round(np.sum(stdClsOutput)/n_experinces,decimals=2)
-
-    y_plotPlastic = np.insert(y_plotPlastic,obj=n_experinces,values=0)
-    stdPlasticPred = np.insert(stdPlasticPred,obj=n_experinces,values=0)
-
-    y_plotStable = np.insert(y_plotStable,obj=n_experinces,values=cls_avgOutputMean)
-    stdStablePred = np.insert(stdStablePred,obj=n_experinces,values=cls_avgOutputstd)
-     
-    bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'r',label="Plastic Model",yerr=stdPlasticPred)
-    bar_stable = ax.bar(ind+width, y_plotStable, width, color='g',label="Stable Model",yerr=stdStablePred)
-
-    ax.axvline(x=4.8,ymin=0,ymax=np.max(y_plotPlastic),color='black', linestyle='dotted', linewidth=2.5)
-    
-    ax.bar_label(bar_plastic, padding=3)
-    ax.bar_label(bar_stable, padding=3)
-    
-    ax.set_title("FMNIST")
-    ax.set_xlabel("Experiences & Models")
-    ax.set_ylabel("Accuarcy")
-    ax.set_xticks(ind+width,["exp1","exp2","exp3","exp4","exp5","Avg Output"])
-    ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
-    fig.tight_layout()
-    plt.show()
-    plt.savefig("pics/Buffer5k/FMNIST_WithInhibitionSleep_test2.png")
-
-def ConfusionMatrixPerExp(predictionsForCF_stable, predictionsForCF_plastic, ground_truth, exp_numb, n_experiences, labels=None):
-
-    # Extracting the ground truth from the experiences
-    org_class = []
-    exp=0
-    last_expLength = 0
-    for experiences in ground_truth:
-        eval_dataset = experiences.dataset
-        total_dataLength = eval_dataset.__len__()
-        eval_data_loader = DataLoader(eval_dataset,num_workers=4,batch_size=total_dataLength,shuffle=False)
-        for data in  eval_data_loader:
-            eval_dataLabels = data[1]
-        org_class.append(eval_dataLabels.detach().numpy())
-        exp+=1
-        if exp == (n_experiences):
-            last_expLength = eval_dataset.__len__()
-
-    ## Flatten the array 
-    predictionsForCF_stable = np.array(predictionsForCF_stable,dtype="object")
-    itr_stable = predictionsForCF_stable.shape[0]
-    predictionsForCF_stableFalttened = []
-    for i in range(itr_stable):
-        itr2 = len(predictionsForCF_stable[i])
-        for j in range(itr2):
-            predictionsForCF_stableFalttened.append(predictionsForCF_stable[i][j])
-
-    predictionsForCF_plastic = np.array(predictionsForCF_plastic,dtype="object")
-    itr_plastic = predictionsForCF_plastic.shape[0]
-    predictionsForCF_plasticFalttened = []
-    for i in range(itr_plastic):
-        itr2 = len(predictionsForCF_plastic[i])
-        for j in range(itr2):
-            predictionsForCF_plasticFalttened.append(predictionsForCF_plastic[i][j])
-
-
-    org_class = np.array(org_class,dtype="object")
-    itr_ground = org_class.shape[0]
-    org_classFlattened = []
-    for i in range(itr_ground):
-        itr2 = len(org_class[i])
-        for j in range(itr2):
-            org_classFlattened.append(org_class[i][j])
-
-    ## Comaprision between stable model and plastic model
-    if (exp_numb==n_experiences):
-        temp_stablePred = predictionsForCF_stableFalttened[0:(len(predictionsForCF_stableFalttened)-last_expLength)]
-        temp_plasticPred = predictionsForCF_plasticFalttened[(len(predictionsForCF_stableFalttened)-last_expLength):]
-        cls_output = np.concatenate((temp_stablePred,temp_plasticPred))
-    else:
-        cls_output = predictionsForCF_stableFalttened
-    
-    cls_output = np.array(cls_output)
-    
-    cd_matrix = confusion_matrix(y_true = org_classFlattened, y_pred = cls_output, labels = labels)
-    cf_plot = ConfusionMatrixDisplay(cd_matrix,display_labels=labels)
-    cf_plot.plot(cmap="BuGn",include_values=False)
-    plt.show()
-    plt.savefig(f"confusionMatrix/confusionMatrix{exp_numb}experience_WithSleepWithinhibition.png")
 
 def main():
     stablePredN = []
@@ -317,7 +199,7 @@ def main():
     print(f"The mean accuracy after {n_experiences} experiences for {num_runs} CLS output model is {np.sum(meanClsOutput)/n_experiences}")
     print(f"The Corresponding std. {n_experiences} experiences for {num_runs} CLS output model is {np.sum(stdClsOutput)/n_experiences}")
 
-    barPlotMeanPred(y_plotPlastic= meanPlasticPred, y_plotStable = meanStablePred, y_clsOutput= meanClsOutput,stdStablePred=stdStablePred,
+    utility_funcs.barPlotMeanPred(y_plotPlastic= meanPlasticPred, y_plotStable = meanStablePred, y_clsOutput= meanClsOutput,stdStablePred=stdStablePred,
     stdPlasticPred=stdPlasticPred,stdClsOutput=stdClsOutput,n_experinces = n_experiences )
 
 

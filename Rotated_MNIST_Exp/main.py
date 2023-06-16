@@ -33,10 +33,9 @@ from utils import utility_funcs
 
 def singleRun(n_experiences):
 
-    num_runs=1
     num_epochs=35
     batch_sizeCLS = 1024
-    mini_batchGR = 128#32#64
+    mini_batchGR = 32#128 --> change
 
     n_classes=10
     device = "cuda"
@@ -50,9 +49,9 @@ def singleRun(n_experiences):
     learning_rate = 1e-2 
 
     ##Hyperparameters Generator 
-    learning_rateGR = 0.0001 #0.001
-    batch_sizeGR = 32 
-    num_epochsGR = 20 #15 edited from 15 to 20
+    learning_rateGR = 0.0001 
+    batch_sizeGR = 32  
+    num_epochsGR = 20 
     patienceGR = 50  # No patience
 
     synthetic_imgHeight = 28
@@ -62,9 +61,9 @@ def singleRun(n_experiences):
 
     
     # buffer size = num_syntheticExamplesPerDigit * 10
-    num_syntheticExamplesPerDigit = 100#50
+    num_syntheticExamplesPerDigit = 10
 
-    num_originalExamplesPerDigit = 3#10
+    num_originalExamplesPerDigit = 10#3
 
 
     #Buffer transformations
@@ -77,7 +76,8 @@ def singleRun(n_experiences):
     #Tranformations for the GR model
     #train_transformGR = Compose([ToTensor()])
 
-    scenario_trainTest = RotatedMNIST(n_experiences=n_experiences,train_transform=train_transformInput,eval_transform=test_transformInput,seed=32)
+    scenario_trainTest = RotatedMNIST(n_experiences=n_experiences,train_transform=train_transformInput,
+                                      eval_transform=test_transformInput,seed=32)
 
     train_stream = scenario_trainTest.train_stream
     test_stream =  scenario_trainTest.test_stream
@@ -135,7 +135,7 @@ def singleRun(n_experiences):
         
         ## Accuracy Computation   
         print('Computing accuracy on the whole test set')
-        final_accuracy, acc_dict, predictionsForCF_stable, predictionsForCF_plastic = cl_strategy.evaluate(test_stream)
+        final_accuracy, acc_dict, _, _ = cl_strategy.evaluate(test_stream)
         results.append(final_accuracy)
         exp_numb+=1
 

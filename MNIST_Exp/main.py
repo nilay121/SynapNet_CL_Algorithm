@@ -1,8 +1,9 @@
 '''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
+SynapNet is Brain-Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
+a slow learner (Neocortex), along with a variational autoencoder (VAE) based pseudo memory for rehearsal. 
+In addition, we incorporate  lateral inhibition masks on convolutional layer gradients to suppress neighboring 
+neuron activity and a sleep phase for reorganizing learned representations.
 '''
-
 from plasticModel import PlasticModel
 from workingModel import WorkingModel 
 from stableModel import StableModel
@@ -56,9 +57,9 @@ def singleRun(n_experiences):
     synthetic_imgHeight = 28
     synthetic_imgWidth = 28
     img_channel_dim = 1
-    latent_embedding = 50 #100
+    latent_embedding = 50 
 
-    num_syntheticExamplesPerDigit = 500
+    num_syntheticExamplesPerDigit = 500#500#500  
     num_originalExamplesPerDigit = 10
 
     #Buffer transformations
@@ -145,9 +146,9 @@ def singleRun(n_experiences):
     #Save a trained model to a file.
     #torch.save(cl_strategy, "models/VaeModelBufferFinalWithSleep.pickle")
 
-    # Saving few images of each class from the buffer
-    utility_funcs.toPlotGRImages(buffer_images,image_height=synthetic_imgHeight,image_width=synthetic_imgWidth,
-    step_size=num_syntheticExamplesPerDigit)
+    # # Saving few images of each class from the buffer
+    # utility_funcs.toPlotGRImages(buffer_images,image_height=synthetic_imgHeight,image_width=synthetic_imgWidth,
+    # step_size=num_syntheticExamplesPerDigit)
 
     return y_stable,y_plastic,cls_output
 

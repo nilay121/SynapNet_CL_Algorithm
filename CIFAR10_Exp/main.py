@@ -1,6 +1,8 @@
 '''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
+SynapNet is Brain-Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
+a slow learner (Neocortex), along with a variational autoencoder (VAE) based pseudo memory for rehearsal. 
+In addition, we incorporate  lateral inhibition masks on convolutional layer gradients to suppress neighboring 
+neuron activity and a sleep phase for reorganizing learned representations.
 '''
 
 from plasticModel import PlasticModel
@@ -34,10 +36,10 @@ def singleRun(n_experiences):
 
     ## Lateral Inhibition Parameters
     toDo_supression = True
-    gradMaskEpoch = 20 # with modulo
-    length_LIC = 7#3
-    avg_term = 0.2#0.1
-    diff_term = 0.8#0.9
+    gradMaskEpoch = 20 
+    length_LIC = 7
+    avg_term = 0.2
+    diff_term = 0.8
     
     ## CLS Model Parameters
     num_epochs=45
@@ -51,6 +53,7 @@ def singleRun(n_experiences):
     plastic_model_update_freq = 0.90
     reg_weight = 0.15
     
+    clipping =  True
     patience = 10
     learning_rate = 1e-2 
 
@@ -65,7 +68,7 @@ def singleRun(n_experiences):
     img_channel_dim = 3
     latent_embedding = 100
     num_syntheticExamplesPerDigit = 500
-    num_originalExamplesPerDigit = 500
+    num_originalExamplesPerDigit = 250 
 
     #Buffer transformations
     train_transformBuffer = Compose([transforms.ToPILImage(), transforms.RandomCrop(32, padding=4),
@@ -97,7 +100,7 @@ def singleRun(n_experiences):
     stable_model_update_freq=stable_model_update_freq,plastic_model_update_freq=plastic_model_update_freq,\
     num_epochs=num_epochs,reg_weight=reg_weight,batch_size=batch_sizeCLS,n_classes=n_classes,
     n_channel=img_channel_dim,patience=patience,learning_rate=learning_rate,mini_batchGR=mini_batchGR,train_transformBuffer=train_transformBuffer,
-    train_transformInput=train_transformInput,gradMaskEpoch=gradMaskEpoch,clipping=True,length_LIC=length_LIC,avg_term = avg_term, 
+    train_transformInput=train_transformInput,gradMaskEpoch=gradMaskEpoch,clipping=clipping,length_LIC=length_LIC,avg_term = avg_term, 
     diff_term=diff_term,toDo_supression=toDo_supression) #CLS strategy
 
     ## Load saved CLS model    

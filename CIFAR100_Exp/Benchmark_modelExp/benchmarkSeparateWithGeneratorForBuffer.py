@@ -63,7 +63,7 @@ def main():
     learning_ratejoint = 1e-2
     ##Hyperparameters Generator 
  
-    learning_rateGR = 1e-4#0.0001 #0.001 # Increasing it from 1e-4 lead to nan in the training of the GR after 20 epochs
+    learning_rateGR = 1e-4#0.0001 #0.001 
     batch_sizeGR = 32 #128
     num_epochsGR = 100
 
@@ -74,9 +74,9 @@ def main():
     img_channel_dim = 3
     latent_embedding = 100
 
-    # buffer size = num_syntheticExamplesPerDigit * 10
-    num_syntheticExamplesPerDigit = 100
-    num_originalExamplesPerDigit = 100
+    # buffer size = num_syntheticExamplesPerDigit * 100
+    num_syntheticExamplesPerDigit = 5#50
+    num_originalExamplesPerDigit = 5#50
 
     #  model parameters
     input_channel = 3

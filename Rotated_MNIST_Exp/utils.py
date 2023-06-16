@@ -37,29 +37,18 @@ class utility_funcs:
         data = experience.dataset
         dataset = DataLoader(data,batch_size=batch_size,num_workers=4,shuffle=True)
 
-        # for data in dataset:
-        #     x = data[0].to(device)
-        #     y = data[1].to(device)
-        #     if y[idx] == digit:
-        #         images.append(x[idx])
-        #         originalImage_example += 1
-        #     if (originalImage_example == numbOf_orgExamples):
-        #         break
-        #     idx+=1
-
         for data in dataset:
-            idx = 0
             x = data[0].to(device)
             y = data[1].cpu().detach().numpy()
-            for i in range(len(y)):
-                if y[idx] == digit:
-                    images.append(x[idx])
-                    originalImage_example += 1
+            indices_img, = np.where(y==digit)
+            for i in indices_img:
+                images.append(x[i])
+                originalImage_example += 1
                 if (originalImage_example == numbOf_orgExamples):
                     break
-                idx+=1
 
         encodings_digit = []
+        model.eval()
         for i in range(numbOf_orgExamples):
             with torch.no_grad():
                 _,mu, sigma = model.encoding_fn(images[i]) #.view(1, 784)
@@ -205,8 +194,8 @@ class utility_funcs:
         y_plotStable = np.insert(y_plotStable,obj=n_experinces,values=cls_avgOutputMean)
         stdStablePred = np.insert(stdStablePred,obj=n_experinces,values=cls_avgOutputstd)
         
-        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'r',label="Plastic Model",yerr=stdPlasticPred)
-        bar_stable = ax.bar(ind+width, y_plotStable, width, color='g',label="Stable Model",yerr=stdStablePred)
+        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'lightgray',label="Plastic Model",yerr=stdPlasticPred)
+        bar_stable = ax.bar(ind+width, y_plotStable, width, color='lightsteelblue',label="Stable Model",yerr=stdStablePred)
 
         ax.axvline(x=4.8,ymin=0,ymax=np.max(y_plotPlastic),color='black', linestyle='dotted', linewidth=2.5)
         
@@ -220,7 +209,7 @@ class utility_funcs:
         ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
         fig.tight_layout()
         plt.show()
-        plt.savefig("pics/RMNIST_avgGraph_test35smf85pmf35lambda.png")
+        plt.savefig("pics/RMNIST500_stdTest2.png")
 
     def ConfusionMatrixPerExp(predictionsForCF_stable, predictionsForCF_plastic, ground_truth, labels, exp_numb, n_experiences):
 

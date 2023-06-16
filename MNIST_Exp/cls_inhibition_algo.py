@@ -1,11 +1,3 @@
-'''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
-
-Note: "LateralInhibition" class has been taken from the Paper "Lateral Inhibition-Inspired Convolutional Neural Network 
-for Visual Attention and Saliency Detection (2018)" with minor changes. The credit for this class goes to the respective authors.
-
-'''
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
@@ -81,13 +73,11 @@ class CustomInhibitStrategy():
         
         optimizer.zero_grad()
         loss = 0 
-
         # transformation on the buffer data
         buffer_inputs, buffer_labels = utility_funcs.get_dataBuffer(buffer_data=buf_inputs,buffer_labels=buf_labels,size=self.mini_batchGR,
         synthetic_imgHeight=synthetic_imgHeight,synthetic_imgWidth=synthetic_imgWidth,device=self.device,transform=self.train_transformBuffer)
         buffer_inputs = buffer_inputs.to(self.device)
         buffer_labels = buffer_labels.to(self.device)
-
         #Logits from the semantic memory
         stable_model_logits = self.modelstable(buffer_inputs) # check
         plastic_model_logits = self.modelplastic(buffer_inputs) # check

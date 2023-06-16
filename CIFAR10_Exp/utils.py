@@ -203,8 +203,8 @@ class utility_funcs:
         y_plotStable = np.insert(y_plotStable,obj=n_experinces,values=cls_avgOutputMean)
         stdStablePred = np.insert(stdStablePred,obj=n_experinces,values=cls_avgOutputstd)
         
-        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'r',label="Plastic Model",yerr=stdPlasticPred)
-        bar_stable = ax.bar(ind+width, y_plotStable, width, color='g',label="Stable Model",yerr=stdStablePred)
+        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'lightgray',label="Plastic Model",yerr=stdPlasticPred)
+        bar_stable = ax.bar(ind+width, y_plotStable, width, color='lightsteelblue',label="Stable Model",yerr=stdStablePred)
 
         ax.axvline(x=4.8,ymin=0,ymax=np.max(y_plotPlastic),color='black', linestyle='dotted', linewidth=2.5)
         
@@ -218,4 +218,4 @@ class utility_funcs:
         ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
         fig.tight_layout()
         plt.show()
-        plt.savefig("pics/Buffer5k/CIFAR10_avgGraphAfter3runsWithInhibition_withSleeptestwithVAE.png")
+        plt.savefig("pics/Buffer5k/CIFAR10_500std.png")

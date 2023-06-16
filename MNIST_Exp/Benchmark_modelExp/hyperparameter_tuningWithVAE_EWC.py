@@ -62,7 +62,8 @@ class Hyperparametr:
     def objective(self,trial):
 
         params = {
-            "ewc_lambda": trial.suggest_float("ewc_lambda",1e2,1e4,step = 1e3),
+            "ewc_lambda": trial.suggest_float("ewc_lambda",1e2,1e4,step = 500),
+            "train_batch_size": trial.suggest_int("train_batch_size",32,128,step = 32),
             # "learning_rate":trial.suggest_float("learning_rate",1e-3,1e-1,step=None,log=True)
 
         }
@@ -70,7 +71,7 @@ class Hyperparametr:
         n_classes=10
         epochs = 25
         n_experiences=5
-        train_batch_size = 64
+        train_batch_size = params['train_batch_size']#64
         eval_batch_size = 64
 
         ewc_lambda = params['ewc_lambda']
@@ -139,7 +140,7 @@ class Hyperparametr:
         # LwfModel = LwF(model=modellwf,optimizer=SGD(modellwf.parameters(), lr=0.001, momentum=0.9),train_mb_size=64,eval_mb_size=64,
         # criterion=CrossEntropyLoss(),temperature=2.0,alpha=1.0,train_epochs=epochs,device=device) # EWC replay model
 
-        ewcModel = EWC(model=modelewc,optimizer=SGD(modelewc.parameters(), lr=learning_rate, momentum=0.9),train_mb_size=train_batch_size,
+        ewcModel = EWC(model=modelewc,optimizer=SGD(modelewc.parameters(), lr=learning_rate),train_mb_size=train_batch_size,
         eval_mb_size=eval_batch_size, ewc_lambda=ewc_lambda,criterion=CrossEntropyLoss(),train_epochs=epochs,device=device)
 
         # siModel = SynapticIntelligence(model=modelsi,optimizer=SGD(modelewc.parameters(), lr=0.001, momentum=0.9),train_mb_size=64,eval_mb_size=64,
@@ -228,7 +229,7 @@ def main():
     StableAccuracyPerConfig = hyperparametr_obj.objective # objective function
 
     study = optuna.create_study(direction="maximize")
-    study.optimize(StableAccuracyPerConfig, n_trials=12)#
+    study.optimize(StableAccuracyPerConfig, n_trials=20)#
 
     print("best trial")
     trial_ = study.best_trial
@@ -238,7 +239,7 @@ def main():
     print(trial_.params)
     print("*"*20)
 
-    optuna.visualization.matplotlib.plot_parallel_coordinate(study, params=["ewc_lambda"])
+    optuna.visualization.matplotlib.plot_parallel_coordinate(study, params=["ewc_lambda", "train_batch_size"])
     plt.tight_layout()
     plt.savefig(f"tb_results/MNISToptuna_plotBenchmarkModelEWC.png")
 

@@ -8,6 +8,8 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 import time
 import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
 
 class CustomDatasetForDataLoader(Dataset):
     def __init__(self,data,targets):
@@ -48,6 +50,7 @@ class utility_funcs:
         # print("the shape of the image is ",images.shape)
 
         encodings_digit = []
+        model.eval()
         for i in range(numbOf_orgExamples):
             with torch.no_grad():
                 _, mu, sigma = model.encoding_fn(images[i]) #.view(1, 784)
@@ -120,6 +123,122 @@ class utility_funcs:
         transformed_images = torch.stack([transform(ee.cpu()) for ee in input_data]).to("cuda")
 
         return transformed_images
+    
+
+    def dataPrepToPlot(acc_dict,exp_numb):
+        y_stable=[]
+        y_plastic=[]
+        cls_output = []
+
+        for i in range(0,len(acc_dict)):
+            y_stable.append(np.array(list(acc_dict.values())[i][0].cpu()))
+            y_plastic.append(np.array(list(acc_dict.values())[i][1].cpu()))
+        '''
+        The accuracy of the plastic model for the recent experiences are better than the stable model,
+        whereas the accuracy of the stable model on the old experiences are better.
+        We use the stable model for the older experiences and the plastic model for the latest or recent experiences
+        '''
+        for outputs in range(len(y_stable)):
+            if (outputs==(exp_numb-1)):
+                cls_output.append(y_plastic[outputs])
+            else:
+                cls_output.append(y_stable[outputs])
+
+        y_stable = np.array(y_stable)
+        y_plastic = np.array(y_plastic)
+        cls_output = np.array(cls_output)
+        return np.round(y_stable,decimals=6),np.round(y_plastic,decimals=6),np.round(cls_output,decimals=6)
+    
+    def barPlotMeanPred(y_plotPlastic,y_plotStable,y_clsOutput,stdStablePred,stdPlasticPred,stdClsOutput,n_experinces):
+        N = n_experinces + 1
+        ind = np.arange(N)
+        width = 0.25
+        fig, ax = plt.subplots()
+
+        cls_avgOutputMean = np.round(np.sum(y_clsOutput)/n_experinces,decimals=2)
+        cls_avgOutputstd = np.round(np.sum(stdClsOutput)/n_experinces,decimals=2)
+
+        y_plotPlastic = np.insert(y_plotPlastic,obj=n_experinces,values=0)
+        stdPlasticPred = np.insert(stdPlasticPred,obj=n_experinces,values=0)
+
+        y_plotStable = np.insert(y_plotStable,obj=n_experinces,values=cls_avgOutputMean)
+        stdStablePred = np.insert(stdStablePred,obj=n_experinces,values=cls_avgOutputstd)
+        
+        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'lightgray',label="Plastic Model",yerr=stdPlasticPred)
+        bar_stable = ax.bar(ind+width, y_plotStable, width, color='lightsteelblue',label="Stable Model",yerr=stdStablePred)
+
+        ax.axvline(x=4.8,ymin=0,ymax=np.max(y_plotPlastic),color='black', linestyle='dotted', linewidth=2.5)
+        
+        ax.bar_label(bar_plastic, padding=3)
+        ax.bar_label(bar_stable, padding=3)
+        
+        ax.set_title("FMNIST")
+        ax.set_xlabel("Experiences & Models")
+        ax.set_ylabel("Accuarcy")
+        ax.set_xticks(ind+width,["exp1","exp2","exp3","exp4","exp5","Avg Output"])
+        ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
+        fig.tight_layout()
+        plt.show()
+        plt.savefig("pics/Buffer5k/FMNIST2500_std.png")
+
+    def ConfusionMatrixPerExp(predictionsForCF_stable, predictionsForCF_plastic, ground_truth, exp_numb, n_experiences, labels=None):
+
+        # Extracting the ground truth from the experiences
+        org_class = []
+        exp=0
+        last_expLength = 0
+        for experiences in ground_truth:
+            eval_dataset = experiences.dataset
+            total_dataLength = eval_dataset.__len__()
+            eval_data_loader = DataLoader(eval_dataset,num_workers=4,batch_size=total_dataLength,shuffle=False)
+            for data in  eval_data_loader:
+                eval_dataLabels = data[1]
+            org_class.append(eval_dataLabels.detach().numpy())
+            exp+=1
+            if exp == (n_experiences):
+                last_expLength = eval_dataset.__len__()
+
+        ## Flatten the array 
+        predictionsForCF_stable = np.array(predictionsForCF_stable,dtype="object")
+        itr_stable = predictionsForCF_stable.shape[0]
+        predictionsForCF_stableFalttened = []
+        for i in range(itr_stable):
+            itr2 = len(predictionsForCF_stable[i])
+            for j in range(itr2):
+                predictionsForCF_stableFalttened.append(predictionsForCF_stable[i][j])
+
+        predictionsForCF_plastic = np.array(predictionsForCF_plastic,dtype="object")
+        itr_plastic = predictionsForCF_plastic.shape[0]
+        predictionsForCF_plasticFalttened = []
+        for i in range(itr_plastic):
+            itr2 = len(predictionsForCF_plastic[i])
+            for j in range(itr2):
+                predictionsForCF_plasticFalttened.append(predictionsForCF_plastic[i][j])
+
+
+        org_class = np.array(org_class,dtype="object")
+        itr_ground = org_class.shape[0]
+        org_classFlattened = []
+        for i in range(itr_ground):
+            itr2 = len(org_class[i])
+            for j in range(itr2):
+                org_classFlattened.append(org_class[i][j])
+
+        ## Comaprision between stable model and plastic model
+        if (exp_numb==n_experiences):
+            temp_stablePred = predictionsForCF_stableFalttened[0:(len(predictionsForCF_stableFalttened)-last_expLength)]
+            temp_plasticPred = predictionsForCF_plasticFalttened[(len(predictionsForCF_stableFalttened)-last_expLength):]
+            cls_output = np.concatenate((temp_stablePred,temp_plasticPred))
+        else:
+            cls_output = predictionsForCF_stableFalttened
+        
+        cls_output = np.array(cls_output)
+        
+        cd_matrix = confusion_matrix(y_true = org_classFlattened, y_pred = cls_output, labels = labels)
+        cf_plot = ConfusionMatrixDisplay(cd_matrix,display_labels=labels)
+        cf_plot.plot(cmap="BuGn",include_values=False)
+        plt.show()
+        #plt.savefig(f"confusionMatrix/confusionMatrix{exp_numb}Mask.png")
 
     def benchmarkDataPrep(experience, device, synthetic_imgHeight=28, synthetic_imgWidth=28, train_transformBuffer=None, train_transformInput=None,
     img_channelDim = 1,buffer_data=[],buffer_label=[]):

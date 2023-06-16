@@ -55,10 +55,10 @@ def main():
     joint_batchSize = 64
     patienceJoint = 10
 
-    ewc_lambda_si = 4500#8100
-    ewc_lambda = 1e3 
-    temperature = 14
-    alpha = 7
+    ewc_lambda_si = 1500
+    ewc_lambda = 4600
+    temperature = 9
+    alpha = 3
 
     learning_rate = 1e-3
     learning_ratejoint = 1e-3
@@ -71,9 +71,9 @@ def main():
     synthetic_imgHeight = 28
     synthetic_imgWidth = 28
     img_channel_dim = 1
-    latent_embedding = 100
+    latent_embedding = 50
 
-    num_syntheticExamplesPerDigit = 500
+    num_syntheticExamplesPerDigit = 50#100
     num_originalExamplesPerDigit = 10
 
     #  model parameters

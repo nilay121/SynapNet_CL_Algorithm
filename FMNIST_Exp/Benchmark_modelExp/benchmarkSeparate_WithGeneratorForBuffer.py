@@ -50,7 +50,8 @@ def main():
     eval_batch_size = 32
     joint_batchSize = 64
 
-    ewc_lambda = 2700
+    ewc_lambda = 512#2700
+    si_lambda = 1500 #2700
     temperature = 25
     alpha = 4
 
@@ -69,7 +70,7 @@ def main():
     img_channel_dim = 1
     latent_embedding = 100
 
-    num_syntheticExamplesPerDigit = 500
+    num_syntheticExamplesPerDigit = 500#100#500
     num_originalExamplesPerDigit = 10
 
     #  model parameters
@@ -130,7 +131,7 @@ def main():
         #lambda=0.001
 
         siModel = SynapticIntelligence(model=modelsi,optimizer=SGD(modelsi.parameters(), lr=learning_rate, momentum=0.9),train_mb_size=train_batch_size,
-        eval_mb_size=eval_batch_size,si_lambda=ewc_lambda,criterion=CrossEntropyLoss(),train_epochs=epochs,device=device) 
+        eval_mb_size=eval_batch_size,si_lambda=si_lambda,criterion=CrossEntropyLoss(),train_epochs=epochs,device=device) 
 
         naiveModel = Naive(model=modelNaive,optimizer=SGD(modelNaive.parameters(), lr=learning_rate, momentum=0.9),train_mb_size=train_batch_size,
         eval_mb_size=eval_batch_size,criterion=CrossEntropyLoss(),train_epochs=epochs,device=device)
@@ -266,12 +267,11 @@ def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBen
 
     ymax = 0
     max_calc = [meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchJoint]
-    for i in range(3):
+    for i in range(4):
         temp = np.max(max_calc[i])
         if temp>ymax:
             ymax = temp
-    print(meanBenchEWC)
-    print(meanBenchJoint)
+
 
     EWC_avgOutputMean = np.round(np.sum(meanBenchEWC)/n_experinces,decimals=2)
     EWC_avgOutputStd = np.round(np.sum(stdBenchEWC)/n_experinces,decimals=2)
@@ -303,12 +303,12 @@ def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBen
     meanBenchJoint = np.insert(meanBenchJoint,obj=n_experinces,values=Joint_avgOutputMean)
     stdBenchJoint = np.insert(stdBenchJoint,obj=n_experinces,values=Joint_avgOutputStd)
  
-    bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'r',label="EWC Model",yerr=stdBenchEWC)
-    bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='g',label="LWF Model",yerr=stdBenchLWF)
-    bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='b',label="SI Model",yerr=stdBenchSI)
+    bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'mistyrose',label="EWC Model",yerr=stdBenchEWC)
+    bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='thistle',label="LWF Model",yerr=stdBenchLWF)
+    bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='powderblue',label="SI Model",yerr=stdBenchSI)
 
-    bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='cyan',label="Naive Model",yerr=stdBenchNaive)
-    bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='gold',label="Joint Model",yerr=stdBenchJoint)
+    bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='wheat',label="Naive Model",yerr=stdBenchNaive)
+    bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='lemonchiffon',label="Joint Model",yerr=stdBenchJoint)
 
     ax.axvline(x=4.8,ymin=0,ymax=ymax,color='black', linestyle='dotted', linewidth=2.5)
     
@@ -325,7 +325,7 @@ def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBen
     ax.legend((bar_ewc, bar_lwf,bar_si, bar_naive, bar_joint), ('EWC Model', 'LWF Model','Synaptic Intelligence','Naive','Joint'),loc=0)
     fig.tight_layout()
     plt.show()
-    plt.savefig("FMNIST/buffer_size5000benchmark_after5runstest2.png")
+    plt.savefig("FMNIST/buffer_size5000_std_test2.png")
 
 if __name__=="__main__":
     main()

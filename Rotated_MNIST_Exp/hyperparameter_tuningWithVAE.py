@@ -27,8 +27,7 @@ from utils import utility_funcs
 
 class Hyperparametr:
     def __init__(self):
-        self.buffer_images = []
-        self.buffer_labels = []
+        pass
 
     def dataGeneration(self):
         n_experiences = 5
@@ -86,7 +85,8 @@ class Hyperparametr:
         # stablePredN = []
         # plasticPredN = []
         # cls_outputPredN = []
-        
+        self.buffer_images = []
+        self.buffer_labels = []    
         total_epochs= 35      #params['total_epochs']
         n_classes=10
 

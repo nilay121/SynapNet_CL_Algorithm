@@ -75,8 +75,8 @@ def main():
     latent_embedding = 100
 
     # buffer size = num_syntheticExamplesPerDigit * 10
-    num_syntheticExamplesPerDigit = 500
-    num_originalExamplesPerDigit = 500
+    num_syntheticExamplesPerDigit = 50#100#500
+    num_originalExamplesPerDigit = 50#250
 
     #  model parameters
     input_channel = 3
@@ -273,79 +273,7 @@ def main():
     print(f"The mean value after 5 experinces for {num_runs} for Joint model is {np.sum(meanBenchJoint)/n_experiences}")
     print(f"The Corresponding std. after 5 experinces for {num_runs} for Joint model is {np.sum(stdBenchJoint)/n_experiences}")
 
-def dataPrepToPlot(bench_results,testDataExpLen):
-    benchResultArray=[]
-    for i in range (0,testDataExpLen):
-        benchResultArray.append(bench_results["Top1_Acc_Exp/eval_phase/test_stream/Task000/Exp00"+str(i)])
-    return np.round(benchResultArray,decimals=2)
 
-
-def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBenchJoint,stdBenchEWC,stdBenchLWF,stdBenchSI,stdBenchNaive,stdBenchJoint,n_experinces):
-    N = n_experinces + 1
-    ind = np.arange(N)
-    width = 0.15
-    fig, ax = plt.subplots()
-
-    ymax = 0
-    max_calc = [meanBenchEWC,meanBenchLWF,meanBenchSI]
-    for i in range(3):
-        temp = np.max(max_calc[i])
-        if temp>ymax:
-            ymax = temp
-
-    EWC_avgOutputMean = np.round(np.sum(meanBenchEWC)/n_experinces,decimals=2)
-    EWC_avgOutputStd = np.round(np.sum(stdBenchEWC)/n_experinces,decimals=2)
-
-    LWF_avgOutputMean = np.round(np.sum(meanBenchLWF)/n_experinces,decimals=2)
-    LWF_avgOutputStd = np.round(np.sum(stdBenchLWF)/n_experinces,decimals=2)
-
-    SI_avgOutputMean = np.round(np.sum(meanBenchSI)/n_experinces,decimals=2)
-    SI_avgOutputStd = np.round(np.sum(stdBenchSI)/n_experinces,decimals=2)
-
-    Naive_avgOutputMean = np.round(np.sum(meanBenchNaive)/n_experinces,decimals=2)
-    Naive_avgOutputStd = np.round(np.sum(stdBenchNaive)/n_experinces,decimals=2)
-
-    Joint_avgOutputMean = np.round(np.sum(meanBenchJoint)/n_experinces,decimals=2)
-    Joint_avgOutputStd = np.round(np.sum(stdBenchJoint)/n_experinces,decimals=2)
-
-    meanBenchEWC = np.insert(meanBenchEWC,obj=n_experinces,values=EWC_avgOutputMean)
-    stdBenchEWC = np.insert(stdBenchEWC,obj=n_experinces,values=EWC_avgOutputStd)
-
-    meanBenchLWF = np.insert(meanBenchLWF,obj=n_experinces,values=LWF_avgOutputMean)
-    stdBenchLWF = np.insert(stdBenchLWF,obj=n_experinces,values=LWF_avgOutputStd)
-
-    meanBenchSI = np.insert(meanBenchSI,obj=n_experinces,values=SI_avgOutputMean)
-    stdBenchSI = np.insert(stdBenchSI,obj=n_experinces,values=SI_avgOutputStd)
-
-    meanBenchNaive = np.insert(meanBenchNaive,obj=n_experinces,values=Naive_avgOutputMean)
-    stdBenchNaive = np.insert(stdBenchNaive,obj=n_experinces,values=Naive_avgOutputStd)
-
-    meanBenchJoint = np.insert(meanBenchJoint,obj=n_experinces,values=Joint_avgOutputMean)
-    stdBenchJoint = np.insert(stdBenchJoint,obj=n_experinces,values=Joint_avgOutputStd)
- 
-    bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'r',label="EWC Model",yerr=stdBenchEWC)
-    bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='g',label="LWF Model",yerr=stdBenchLWF)
-    bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='b',label="SI Model",yerr=stdBenchSI)
-
-    bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='cyan',label="Naive Model",yerr=stdBenchNaive)
-    bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='gold',label="Joint Model",yerr=stdBenchJoint)
-
-    ax.axvline(x=4.8,ymin=0,ymax=ymax,color='black', linestyle='dotted', linewidth=2.5)
-    
-    ax.bar_label(bar_ewc, padding=3)
-    ax.bar_label(bar_lwf, padding=3)
-    ax.bar_label(bar_si, padding=3)
-    ax.bar_label(bar_naive, padding=3)
-    ax.bar_label(bar_joint, padding=3)
-    
-    ax.set_title("CIFAR10 Benchmark")
-    ax.set_xlabel("Experiences & Models")
-    ax.set_ylabel("Accuarcy")
-    ax.set_xticks(ind+width,["exp1","exp2","exp3","exp4","exp5","Avg Output"])
-    ax.legend((bar_ewc, bar_lwf,bar_si, bar_naive, bar_joint), ('EWC Model', 'LWF Model','Synaptic Intelligence','Naive','Joint'),loc=0)
-    fig.tight_layout()
-    plt.show()
-    plt.savefig("CIFAR/buffer_size5000benchmark_after3runs.png")
 
 if __name__=="__main__":
     main()

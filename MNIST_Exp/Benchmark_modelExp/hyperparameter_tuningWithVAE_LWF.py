@@ -63,8 +63,8 @@ class Hyperparametr:
     def objective(self,trial):
 
         params = {
-            "temperature": trial.suggest_float("temperature",2,21,step = 3),
-            "alpha": trial.suggest_float("alpha",1,20,step = 3)
+            "temperature": trial.suggest_float("temperature",3,30,step = 3),
+            "alpha": trial.suggest_float("alpha",3,30,step = 3)
             # "learning_rate":trial.suggest_float("learning_rate",1e-3,1e-1,step=None,log=True)
 
         }
@@ -253,7 +253,7 @@ def main():
     StableAccuracyPerConfig = hyperparametr_obj.objective # objective function
 
     study = optuna.create_study(direction="maximize")
-    study.optimize(StableAccuracyPerConfig, n_trials=12)#
+    study.optimize(StableAccuracyPerConfig, n_trials=20)#
 
     print("best trial")
     trial_ = study.best_trial

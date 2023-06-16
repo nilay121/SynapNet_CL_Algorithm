@@ -48,6 +48,7 @@ class utility_funcs:
             idx+=1
 
         encodings_digit = []
+        model.eval()
         for i in range(numbOf_orgExamples):
             with torch.no_grad():
                 _,mu, sigma = model.encoding_fn(images[i]) #.view(1, 784)
@@ -192,8 +193,8 @@ class utility_funcs:
         y_plotStable = np.insert(y_plotStable,obj=n_experinces,values=cls_avgOutputMean)
         stdStablePred = np.insert(stdStablePred,obj=n_experinces,values=cls_avgOutputstd)
         
-        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'r',label="Plastic Model",yerr=stdPlasticPred)
-        bar_stable = ax.bar(ind+width, y_plotStable, width, color='g',label="Stable Model",yerr=stdStablePred)
+        bar_plastic = ax.bar(ind, y_plotPlastic, width, color = 'lightgray',label="Plastic Model",yerr=stdPlasticPred)
+        bar_stable = ax.bar(ind+width, y_plotStable, width, color='lightsteelblue',label="Stable Model",yerr=stdStablePred)
 
         ax.axvline(x=4.8,ymin=0,ymax=np.max(y_plotPlastic),color='black', linestyle='dotted', linewidth=2.5)
         
@@ -207,7 +208,7 @@ class utility_funcs:
         ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
         fig.tight_layout()
         plt.show()
-        plt.savefig("pics/MNIST/buffer5kGR/MNIST_avgGraphAfter3runsNosleep.png")
+        plt.savefig("pics/MNIST/buffer5kGR/mnist_5kWithsleep.png")
 
 
     def ConfusionMatrixPerExp(predictionsForCF_stable, predictionsForCF_plastic, ground_truth, labels, exp_numb, n_experiences):
@@ -272,4 +273,4 @@ class utility_funcs:
         cf_plot = ConfusionMatrixDisplay(cd_matrix,display_labels=labels)
         cf_plot.plot(cmap="BuGn",include_values=False)
         plt.show()
-        plt.savefig(f"confusionMatrix/confusionMatrix{exp_numb}experience.png")
+        #plt.savefig(f"confusionMatrix/confusionMatrix{exp_numb}experienceBuffer500.png")

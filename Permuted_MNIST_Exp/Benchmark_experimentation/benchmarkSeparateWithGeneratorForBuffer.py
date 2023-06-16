@@ -45,7 +45,7 @@ def main():
     benchResultArrayJoint = []
 
     device = "cuda"
-    num_runs=3
+    num_runs= 3
     n_classes=10
     epochs = 40
     joint_epochs = 20
@@ -71,9 +71,9 @@ def main():
     synthetic_imgWidth = 28
     
     
-    # buffer size = num_syntheticExamplesPerDigit * 10
-    num_syntheticExamplesPerDigit = 100#50
-    num_originalExamplesPerDigit = 3#10
+    # buffer size = num_syntheticExamplesPerDigit * 50
+    num_syntheticExamplesPerDigit = 100
+    num_originalExamplesPerDigit = 10 #3
 
     #  model parameters
     input_channel = 1
@@ -232,20 +232,20 @@ def main():
                     stdBenchEWC = stdBenchEWC, stdBenchLWF = stdBenchLWF, stdBenchSI = stdBenchSI, stdBenchNaive = stdBenchNaive, stdBenchJoint = stdBenchJoint, 
                     n_experinces=n_experiences)
 
-    print(f"The mean value after 5 experinces for {num_runs} for EWC model is {np.sum(meanBenchEWC)/n_experiences}")
-    print(f"The Corresponding std. after 5 experinces for {num_runs} for EWC model model is {np.sum(stdBenchEWC)/n_experiences}")
+    print(f"The mean value after 5 experinces for {num_runs} runs for EWC model is {np.sum(meanBenchEWC)/n_experiences}")
+    print(f"The Corresponding std. after 5 experinces for {num_runs} runs for EWC model model is {np.sum(stdBenchEWC)/n_experiences}")
 
-    print(f"The mean value after 5 experinces for {num_runs} for LWF model is {np.sum(meanBenchLWF)/n_experiences}")
-    print(f"The Corresponding std. after 5 experinces for {num_runs} for LWF model is {np.sum(stdBenchLWF)/n_experiences}")
+    print(f"The mean value after 5 experinces for {num_runs} runs for LWF model is {np.sum(meanBenchLWF)/n_experiences}")
+    print(f"The Corresponding std. after 5 experinces for {num_runs} runs for LWF model is {np.sum(stdBenchLWF)/n_experiences}")
     
-    print(f"The mean value after 5 experinces for {num_runs} for SI model is {np.sum(meanBenchSI)/n_experiences}")
-    print(f"The Corresponding std. after 5 experinces for {num_runs} for SI model is {np.sum(stdBenchSI)/n_experiences}")
+    print(f"The mean value after 5 experinces for {num_runs} runs for SI model is {np.sum(meanBenchSI)/n_experiences}")
+    print(f"The Corresponding std. after 5 experinces for {num_runs} runs for SI model is {np.sum(stdBenchSI)/n_experiences}")
 
-    print(f"The mean value after 5 experinces for {num_runs} for Naive model is {np.sum(meanBenchNaive)/n_experiences}")
-    print(f"The Corresponding std. after 5 experinces for {num_runs} for Naive model is {np.sum(stdBenchNaive)/n_experiences}")
+    print(f"The mean value after 5 experinces for {num_runs} runs for Naive model is {np.sum(meanBenchNaive)/n_experiences}")
+    print(f"The Corresponding std. after 5 experinces for {num_runs} runs for Naive model is {np.sum(stdBenchNaive)/n_experiences}")
 
-    print(f"The mean value after 5 experinces for {num_runs} for Joint model is {np.sum(meanBenchJoint)/n_experiences}")
-    print(f"The Corresponding std. after 5 experinces for {num_runs} for Joint model is {np.sum(stdBenchJoint)/n_experiences}")
+    print(f"The mean value after 5 experinces for {num_runs} runs for Joint model is {np.sum(meanBenchJoint)/n_experiences}")
+    print(f"The Corresponding std. after 5 experinces for {num_runs} runs for Joint model is {np.sum(stdBenchJoint)/n_experiences}")
 
 
 def dataPrepToPlot(bench_results,testDataExpLen):
@@ -262,8 +262,8 @@ def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBen
     fig, ax = plt.subplots()
 
     ymax = 0
-    max_calc = [meanBenchEWC,meanBenchLWF,meanBenchSI]
-    for i in range(3):
+    max_calc = [meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchJoint]
+    for i in range(4):
         temp = np.max(max_calc[i])
         if temp>ymax:
             ymax = temp
@@ -298,12 +298,12 @@ def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBen
     meanBenchJoint = np.insert(meanBenchJoint,obj=n_experinces,values=Joint_avgOutputMean)
     stdBenchJoint = np.insert(stdBenchJoint,obj=n_experinces,values=Joint_avgOutputStd)
  
-    bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'r',label="EWC Model",yerr=stdBenchEWC)
-    bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='g',label="LWF Model",yerr=stdBenchLWF)
-    bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='b',label="SI Model",yerr=stdBenchSI)
+    bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'mistyrose',label="EWC Model",yerr=stdBenchEWC)
+    bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='thistle',label="LWF Model",yerr=stdBenchLWF)
+    bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='powderblue',label="SI Model",yerr=stdBenchSI)
 
-    bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='cyan',label="Naive Model",yerr=stdBenchNaive)
-    bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='gold',label="Joint Model",yerr=stdBenchJoint)
+    bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='wheat',label="Naive Model",yerr=stdBenchNaive)
+    bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='lemonchiffon',label="Joint Model",yerr=stdBenchJoint)
 
     ax.axvline(x=4.8,ymin=0,ymax=ymax,color='black', linestyle='dotted', linewidth=2.5)
     
@@ -320,7 +320,7 @@ def barPlotMeanPred(meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchNaive,meanBen
     ax.legend((bar_ewc, bar_lwf,bar_si, bar_naive, bar_joint), ('EWC Model', 'LWF Model','Synaptic Intelligence','Naive','Joint'),loc=0)
     fig.tight_layout()
     plt.show()
-    plt.savefig("PMNIST/PMNIST_buffer_size5000benchmark_after5runs_test3new.png")
+    plt.savefig("PMNIST/PMNIST_buffer_size5k_stdtest2.png")
 
 if __name__=="__main__":
     main()

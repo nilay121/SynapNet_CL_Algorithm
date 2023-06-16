@@ -169,7 +169,7 @@ class utility_funcs:
 
         ymax = 0
         max_calc = [meanBenchEWC,meanBenchLWF,meanBenchSI,meanBenchJoint]
-        for i in range(3):
+        for i in range(4):
             temp = np.max(max_calc[i])
             if temp>ymax:
                 ymax = temp
@@ -204,12 +204,12 @@ class utility_funcs:
         meanBenchJoint = np.insert(meanBenchJoint,obj=n_experinces,values=Joint_avgOutputMean)
         stdBenchJoint = np.insert(stdBenchJoint,obj=n_experinces,values=Joint_avgOutputStd)
     
-        bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'r',label="EWC Model",yerr=stdBenchEWC)
-        bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='g',label="LWF Model",yerr=stdBenchLWF)
-        bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='b',label="SI Model",yerr=stdBenchSI)
+        bar_ewc = ax.bar(ind, meanBenchEWC, width, color = 'mistyrose',label="EWC Model",yerr=stdBenchEWC)
+        bar_lwf = ax.bar(ind+width, meanBenchLWF, width, color='thistle',label="LWF Model",yerr=stdBenchLWF)
+        bar_si = ax.bar(ind+2*width, meanBenchSI, width, color='powderblue',label="SI Model",yerr=stdBenchSI)
 
-        bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='cyan',label="Naive Model",yerr=stdBenchNaive)
-        bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='gold',label="Joint Model",yerr=stdBenchJoint)
+        bar_naive = ax.bar(ind+3*width, meanBenchNaive, width, color='wheat',label="Naive Model",yerr=stdBenchNaive)
+        bar_joint = ax.bar(ind+4*width, meanBenchJoint, width, color='lemonchiffon',label="Joint Model",yerr=stdBenchJoint)
 
         ax.axvline(x=4.8,ymin=0,ymax=ymax,color='black', linestyle='dotted', linewidth=2.5)
         
@@ -226,7 +226,7 @@ class utility_funcs:
         ax.legend((bar_ewc, bar_lwf,bar_si, bar_naive, bar_joint), ('EWC Model', 'LWF Model','Synaptic Intelligence','Naive','Joint'),loc=0)
         fig.tight_layout()
         plt.show()
-        plt.savefig("MNIST/buffer_size5000benchmark_after5runstest3_trans.png")
+        plt.savefig("MNIST/buffr500_stdTest2.png")
 
 
 class JointTraining:

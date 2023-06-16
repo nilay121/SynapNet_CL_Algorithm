@@ -1,6 +1,8 @@
 '''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
+SynapNet is Brain-Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
+a slow learner (Neocortex), along with a variational autoencoder (VAE) based pseudo memory for rehearsal. 
+In addition, we incorporate  lateral inhibition masks on convolutional layer gradients to suppress neighboring 
+neuron activity and a sleep phase for reorganizing learned representations.
 '''
 from plasticModel import PlasticModel
 from workingModel import WorkingModel 
@@ -50,8 +52,8 @@ def singleRun(n_experiences):
 
     ##Hyperparameters Generator 
     learning_rateGR = 0.0001
-    batch_sizeGR = 32 
-    num_epochsGR = 15#20
+    batch_sizeGR = 32
+    num_epochsGR = 15
     patienceGR = 50  
 
     synthetic_imgHeight = 28
@@ -60,7 +62,7 @@ def singleRun(n_experiences):
     latent_embedding = 100
 
     num_syntheticExamplesPerDigit = 100
-    num_originalExamplesPerDigit = 3
+    num_originalExamplesPerDigit = 10#3
 
     #Buffer transformations
     #train_transformBuffer = Compose([transforms.ToPILImage(),ToTensor(),Normalize((0.1307,), (0.3081,))])

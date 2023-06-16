@@ -1,12 +1,3 @@
-'''
-BioINet (Biological Inspired Network) is Biological Inspired Complementary Learning System implementation with a fast Learner (hippocampus), 
-a slow learner (Neocortex), lateral Inhibition and a sleep phase for re-organizing the memories.
-
-Note: "LateralInhibition" class has been taken from the Paper "Lateral Inhibition-Inspired Convolutional Neural Network 
-for Visual Attention and Saliency Detection (2018)" with minor changes. The credit for this class goes to the respective authors.
-
-'''
-
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
@@ -92,21 +83,21 @@ class CustomInhibitStrategy():
       if (epoch%self.gradMaskEpoch) == 0 and (epoch!=0) and (self.toDo_supression):   
         ## Conv1 masking
         gradient_conv1 = self.working_model.model.conv1.weight.grad
-        ts.save(gradient_conv1, f"masks/beforemask{experience.current_experience}.png")
+        #ts.save(gradient_conv1, f"masks/beforemask{experience.current_experience}.png")
         blur = torch.randn(gradient_conv1.shape,device=self.device)
         if gradient_conv1 is not None:
-            # creating max-c map
+            ## creating max-c map
             max_c = gradient_conv1.max(1, keepdim=True)[0]
-            # max-c map is normalized by L2 norm
+            ## max-c map is normalized by L2 norm
             max_c_norm = (max_c ** 2).sum() ** 0.5
             max_c /= max_c_norm
-            # generating suppression mask through lateral inhibition
+            ## generating suppression mask through lateral inhibition
             sup_mask, *_ = self.lateral_inhibition(max_c)
             sup_mask_sized_as_x = sup_mask.expand(-1, gradient_conv1.size()[1], -1, -1)
-            ts.save(sup_mask_sized_as_x, f"masks/SupressionMask{experience.current_experience}.png")
+            #ts.save(sup_mask_sized_as_x, f"masks/SupressionMask{experience.current_experience}.png")
             self.working_model.model.conv1.weight.grad = gradient_conv1.where(sup_mask_sized_as_x != 0, torch.zeros_like(gradient_conv1))
             print("#"*5,"Conv1 gradient updated with mask", "#"*5)
-            ts.save(self.working_model.model.conv1.weight.grad, f"masks/Aftermask{experience.current_experience}.png")
+            #ts.save(self.working_model.model.conv1.weight.grad, f"masks/Aftermask{experience.current_experience}.png")
 
       for data in loader_loop:
         input_dataBT = data[0].to(self.device) #Input data before transformations
