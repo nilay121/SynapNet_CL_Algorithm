@@ -19,7 +19,8 @@ QMNIST, FakeData, CocoCaptions, CocoDetection, LSUN, ImageNet, CIFAR10, \
 CIFAR100, STL10, SVHN, PhotoTour, SBU, Flickr8k, Flickr30k, VOCDetection, \
 VOCSegmentation, Cityscapes, SBDataset, USPS, HMDB51, UCF101, \
 CelebA, CORe50Dataset, TinyImagenet, CUB200, OpenLORIS
-
+import time
+import os
 from avalanche.benchmarks.generators import nc_benchmark, ni_benchmark
 from torchvision.transforms import Compose, ToTensor, Normalize, RandomCrop
 from torch.utils.data import DataLoader, Subset
@@ -31,7 +32,6 @@ from .vae_model import VAE
 from .vae_training import Vae_Cls_Generator
 from .utils import utility_funcs
 
-
 def singleRun(n_experiences):
 
     ## Lateral Inhibition Parameters
@@ -42,19 +42,20 @@ def singleRun(n_experiences):
     diff_term = 0.8
     
     ## CLS Model Parameters
-    num_epochs=100
+    num_epochs = 50
     n_classes = 100
     device = "cuda"
     n_experiences = n_experiences
     batch_sizeCLS = 128
     mini_batchGR = 64
 
-    stable_model_update_freq = 0.95
-    plastic_model_update_freq = 1.0
-    reg_weight = 0.15
+    stable_model_update_freq = 0.75
+    plastic_model_update_freq = 0.95
+    reg_weight = 0.10
     
+    clipping =  True
     patience = 30
-    learning_rate = 1e-1
+    learning_rate = 0.0868
 
     ## Generator Parameters
     learning_rateGR = 1e-4
@@ -67,8 +68,8 @@ def singleRun(n_experiences):
     synthetic_imgWidth = 32
     img_channel_dim = 3
     latent_embedding = 100
-    num_syntheticExamplesPerDigit = 100
-    num_originalExamplesPerDigit = 100
+    num_syntheticExamplesPerDigit = 50
+    num_originalExamplesPerDigit = 50
 
     #Buffer transformations
     train_transformBuffer = Compose([transforms.ToPILImage(), transforms.RandomCrop(32, padding=4),
@@ -102,12 +103,12 @@ def singleRun(n_experiences):
     stable_model_update_freq=stable_model_update_freq,plastic_model_update_freq=plastic_model_update_freq,\
     num_epochs=num_epochs,reg_weight=reg_weight,batch_size=batch_sizeCLS,n_classes=n_classes,
     n_channel=img_channel_dim,patience=patience,learning_rate=learning_rate,mini_batchGR=mini_batchGR,train_transformBuffer=train_transformBuffer,
-    train_transformInput=train_transformInput,gradMaskEpoch=gradMaskEpoch,clipping=True,length_LIC=length_LIC,avg_term = avg_term, 
+    train_transformInput=train_transformInput,gradMaskEpoch=gradMaskEpoch,clipping=clipping,length_LIC=length_LIC,avg_term = avg_term, 
     diff_term=diff_term,toDo_supression=toDo_supression) #CLS strategy
 
     ## Load saved CLS model    
     #cl_strategy = torch.load("best_models/VaeModelBuffer50039.pickle")
-
+    path = os.getcwd()
     ## Initialize Generator model
     modelGR = VAE(channel_dim=img_channel_dim, latent_embedding = latent_embedding,batch_size=batch_sizeGR,img_width=synthetic_imgWidth)
     Vae_Cls_Obj = Vae_Cls_Generator(num_epochs=num_epochsGR,model=modelGR,learning_rate=learning_rateGR,
@@ -151,19 +152,26 @@ def singleRun(n_experiences):
         final_accuracy,acc_dict = cl_strategy.evaluate(test_stream)
         results.append(final_accuracy)
         exp_numb+=1
-
+    
+    ## Save the results array
+    results = results[-1]
+    
     ##Saving the result for plots
     y_stable,y_plastic,cls_output = utility_funcs.dataPrepToPlot(acc_dict,exp_numb)
     # barplot(y_plastic,y_stable,counter=counter)
 
-    ##Save a trained model to a file.
-    #torch.save(cl_strategy, "models/VaeModelBufferFinalWithSleep.pickle")
+    ##Save the trained model to a file.
+    torch.save(cl_strategy, path+"CIFAR100_Exp/models/VaeModelBufferFinalWithSleep.pickle")
+
+    # ## Save the buffer images and labels 
+    # np.save(f"buffer_images{num_syntheticExamplesPerDigit*n_classes}.npy", buffer_images)
+    # np.save(f"buffer_labels{num_syntheticExamplesPerDigit*n_classes}.npy", buffer_labels)
 
     # Saving few images of each class from the buffer
     utility_funcs.toPlotGRImages(buffer_images,image_height=synthetic_imgHeight,image_width=synthetic_imgWidth,img_channel=img_channel_dim
     ,step_size=num_syntheticExamplesPerDigit)
 
-    return y_stable,y_plastic,cls_output
+    return y_stable,y_plastic,cls_output,results
 
 def main():
     stablePredN = []
@@ -171,18 +179,22 @@ def main():
     cls_outputPredN = []
     num_runs = 3
     n_experiences = 5
+    buffer_Size = 20
     counter=0
     for i in range(num_runs):
         print("*"*10)
         print(f" Starting Repeatation Number {counter} out of {num_runs}")
         print("*"*10)
-        y_stable, y_plastic, cls_output = singleRun(n_experiences=n_experiences)
-
+        start_time = time.time()
+        y_stable, y_plastic, cls_output, results = singleRun(n_experiences=n_experiences)
+        duration = time.time() - start_time
         stablePredN.append(y_stable)
         plasticPredN.append(y_plastic)
         cls_outputPredN.append(cls_output)
         counter+=1
-
+        results.append(f"duration {duration}")
+        # np.save(f"results/text_experiences{n_experiences}_bufferSize{buffer_Size}{i}",np.array(results))
+        print(f"Training duration is {duration} sec")
     #Mean, std after N runs runs for n experinces
     meanStablePred = np.round(np.sum(stablePredN,axis=0)/num_runs,decimals=2)    
     meanPlasticPred = np.round(np.sum(plasticPredN,axis=0)/num_runs,decimals=2)
@@ -201,8 +213,8 @@ def main():
     print(f"The mean accuracy after {n_experiences} experiences for {num_runs} CLS output model is {np.sum(meanClsOutput)/n_experiences}")
     print(f"The Corresponding std. {n_experiences} experiences for {num_runs} CLS output model is {np.sum(stdClsOutput)/n_experiences}")
 
-    utility_funcs.barPlotMeanPred(y_plotPlastic= meanPlasticPred, y_plotStable = meanStablePred, y_clsOutput= meanClsOutput,stdStablePred=stdStablePred,
-    stdPlasticPred=stdPlasticPred,stdClsOutput=stdClsOutput,n_experinces = n_experiences )
+    # utility_funcs.barPlotMeanPred(y_plotPlastic= meanPlasticPred, y_plotStable = meanStablePred, y_clsOutput= meanClsOutput,stdStablePred=stdStablePred,
+    # stdPlasticPred=stdPlasticPred,stdClsOutput=stdClsOutput,n_experinces = n_experiences )
 
 
 if __name__=="__main__":

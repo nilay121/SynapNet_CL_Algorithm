@@ -4,20 +4,23 @@ a slow learner (Neocortex), along with a variational autoencoder (VAE) based pse
 In addition, we incorporate  lateral inhibition masks on convolutional layer gradients to suppress neighboring 
 neuron activity and a sleep phase for reorganizing learned representations.
 '''
+
 from argparse import ArgumentParser
 import MNIST_Exp.mainDemoRun as mnist_run
 import FMNIST_Exp.mainDemoRun as fmnist_run
 import CIFAR10_Exp.mainDemoRun as cifar10_run
 import CIFAR100_Exp.mainDemoRun as cifar100_run
+import ImageNet100_Exp.mainDemoRun as imagenet100_run
 import Permuted_MNIST_Exp.mainDemoRun as pmnist_run
 import Rotated_MNIST_Exp.mainDemoRun as rmnist_run
+from ImageNet100_Exp.utils import CustomDatasetForDataLoader
+
 
 def main():
-    arg_choices = ['mnist','fmnist','cifar10','cifar100','permuted_mnist','rotated_mnist']
+    arg_choices = ['mnist','fmnist','cifar10','cifar100','imagenet100','permuted_mnist','rotated_mnist']
     parser = ArgumentParser(description="BioINet Algorithm")
     parser.add_argument("--dataset", type=str, required=True, help="The dataset to perform experiment on",choices=arg_choices)
     args = parser.parse_args()
-
     if args.dataset=="mnist":
         mnist_run.main()
     elif args.dataset=="fmnist":
@@ -26,6 +29,8 @@ def main():
         cifar10_run.main()
     elif args.dataset=="cifar100":
         cifar100_run.main()
+    elif args.dataset=="imagenet100":
+        imagenet100_run.main()
     elif args.dataset=="permuted_mnist":
         pmnist_run.main()
     elif args.dataset=="rotated_mnist":
@@ -35,3 +40,4 @@ def main():
 
 if __name__=="__main__":
     main()
+

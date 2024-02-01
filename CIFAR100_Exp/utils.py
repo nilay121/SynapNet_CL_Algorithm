@@ -211,16 +211,21 @@ class utility_funcs:
 
         ax.axvline(x=4.8,ymin=0,ymax=np.max(y_plotPlastic),color='black', linestyle='dotted', linewidth=2.5)
         
-        ax.bar_label(bar_plastic, padding=3)
-        ax.bar_label(bar_stable, padding=3)
+        ## New changes
+        ax.bar_label(bar_plastic, padding=3, rotation=90)
+        ax.bar_label(bar_stable, padding=3, rotation=90)
+        y_min, y_max = ax.get_ylim()
+        ax.set_ylim(y_min, y_max+0.1)
         
-        ax.set_title("CIFAR100")
-        ax.set_xlabel("Experiences & Models")
-        ax.set_ylabel("Accuarcy")
+        ax.set_title("CIFAR100", weight="bold")
+        ax.set_xlabel("Experiences & Models", weight="bold")
+        ax.set_ylabel("Accuarcy", weight="bold")
+        ax.xaxis.set_tick_params(labelsize=12)
+        ax.yaxis.set_tick_params(labelsize=12)
         ax.set_xticks(ind+width,["exp1","exp2","exp3","exp4","exp5","Avg Output"])
-        ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
+        #ax.legend((bar_plastic, bar_stable), ('Plastic Model', 'Stable Model'),loc=0)
         fig.tight_layout()
         plt.show()
-        plt.savefig("pics/Buffer5k/CIFAR100_5k_stdTestwithLI.png")
+        plt.savefig("pics/Buffer5k/CIFAR100Bold.png")
 
 
