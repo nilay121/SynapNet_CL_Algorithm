@@ -9,6 +9,7 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
 - [FMNIST](https://pytorch.org/vision/main/generated/torchvision.datasets.FashionMNIST.html)
 - [CIFAR10](https://pytorch.org/vision/main/generated/torchvision.datasets.CIFAR10.html#torchvision.datasets.CIFAR10)
 - [CIFAR100](https://pytorch.org/vision/main/generated/torchvision.datasets.CIFAR100.html#torchvision.datasets.CIFAR100)
+- [ImageNet100](https://drive.google.com/drive/u/1/folders/13se_EkGC5J008eQiiErNNGa9VsbKEvgF)
 - [PMNIST](https://avalanche-api.continualai.org/en/v0.1.0/generated/avalanche.benchmarks.classic.PermutedMNIST.html)
 - [RMNIST](https://avalanche-api.continualai.org/en/v0.3.1/generated/avalanche.benchmarks.classic.RotatedMNIST.html)
 
@@ -41,6 +42,7 @@ We have used the [Avalanche](https://avalanche.continualai.org/) framework for t
     python3 main.py --dataset fmnist
     python3 main.py --dataset cifar10
     python3 main.py --dataset cifar100
+    python3 main.py --dataset imagenet100
     python3 main.py --dataset permuted_mnist
     python3 main.py --dataset rotated_mnist
     ```
