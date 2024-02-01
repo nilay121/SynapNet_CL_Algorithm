@@ -152,8 +152,8 @@ def singleRun(n_experiences):
     ###Save a trained model to a file.
     #torch.save(cl_strategy, "models/VaeModelBufferFinalWithSleep.pickle")
 
-    # Saving few images of each class from the buffer
-    utility_funcs.toPlotGRImages(buffer_images,28,28,step_size=num_syntheticExamplesPerDigit)
+    # # Saving few images of each class from the buffer
+    # utility_funcs.toPlotGRImages(buffer_images,28,28,step_size=num_syntheticExamplesPerDigit)
 
     return y_stable, y_plastic, cls_output
 
